@@ -1,0 +1,20 @@
+*.iml
+.gradle
+/local.properties
+/.idea/workspace.xml
+/.idea/libraries
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+
+.gradle/
+local.properties
+
+# generated files by AndroidStudio
+*.iml
+*.imr
+
+build/
+.DS_Store
+/captures
