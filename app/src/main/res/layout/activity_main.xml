@@ -1,21 +1,94 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools">
-    <android.support.constraint.ConstraintLayout
 
+    <data>
+        <variable
+            name="handler"
+            type="android.view.View.OnClickListener" />
+    </data>
+
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context="jp.honkot.checkdbperformance.MainActivity">
+        android:orientation="vertical">
+        <RadioGroup
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-        <TextView
+            <RadioButton
+                android:id="@+id/radioPureAndroid"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="PureAndorid"/>
+
+            <RadioButton
+                android:id="@+id/radioOrma"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="Orma"/>
+
+            <RadioButton
+                android:id="@+id/radioRealm"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Realm"/>
+        </RadioGroup>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+                <Button
+                    android:id="@+id/buttonDeleteAll"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:onClick="@{handler::onClick}"
+                    android:text="delete all and initialize product"/>
+
+                <Button
+                    android:id="@+id/buttonInsert10000_one"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:onClick="@{handler::onClick}"
+                    android:text="insert 10,000 1 by 1"/>
+                <Button
+                    android:id="@+id/buttonInsert10000_bulk"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:onClick="@{handler::onClick}"
+                    android:text="insert 10,000 bulk"/>
+
+                <Button
+                    android:id="@+id/buttonSumQty1_1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:onClick="@{handler::onClick}"
+                    android:text="sum Qty in Event with the price higher than 500 / SIMPLE WAY"/>
+
+                <Button
+                    android:id="@+id/buttonSumQty1_2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:onClick="@{handler::onClick}"
+                    android:text="sum Qty in Event with the price higher than 500 / FASTER WAY"/>
+            </LinearLayout>
+        </ScrollView>
+        
+        <ScrollView
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Hello World!"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
-
-    </android.support.constraint.ConstraintLayout>
+            android:layout_height="200dp">
+            <TextView
+                tools:text="aaa\nbbb\nccc\nddd\neee\nfff"
+                android:id="@+id/result"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+        </ScrollView>
+    </LinearLayout>
 </layout>

@@ -1,18 +1,113 @@
 package jp.honkot.checkdbperformance;
 
+import android.app.ProgressDialog;
 import android.databinding.DataBindingUtil;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
+import android.view.View.OnClickListener;
 
 import jp.honkot.checkdbperformance.databinding.ActivityMainBinding;
+import jp.honkot.checkdbperformance.orma.OrmaDao;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements OnClickListener {
 
     ActivityMainBinding mBinding;
+
+    OrmaDao ormaDao;
+
+    ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
+        mBinding.setHandler(this);
+
+        initialize();
     }
+
+    private void initialize() {
+        ormaDao = new OrmaDao(getApplicationContext());
+        ormaDao.initProduct();
+    }
+
+    @Override
+    public void onClick(View view) {
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.show();
+
+        BgExecuter executer = new BgExecuter(view.getId());
+        executer.execute(new String[] {"a"});
+    }
+
+    private class BgExecuter extends AsyncTask<String, IAction, Performance> {
+
+        int viewId;
+        IAction controller;
+        String tag;
+
+        BgExecuter(int viewId) {
+            this.viewId = viewId;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            if (mBinding.radioOrma.isChecked()) {
+                controller = new OrmaDao(getApplicationContext());
+                tag = "Orma ";
+
+            } else if (mBinding.radioPureAndroid.isChecked()) {
+                //TODO
+
+            } else if (mBinding.radioRealm.isChecked()) {
+                //TODO
+            }
+
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Performance doInBackground(String... args) {
+            if (controller != null) {
+                switch (viewId) {
+                    case R.id.buttonDeleteAll:
+                        tag += "delete all event";
+                        return controller.initialize();
+
+                    case R.id.buttonInsert10000_one:
+                        tag += "insert 10000 one by one ";
+                        return controller.insert();
+
+                    case R.id.buttonInsert10000_bulk:
+                        tag += "insert 10000 bulk ";
+                        return controller.insertBulk();
+
+                    case R.id.buttonSumQty1_1:
+                        tag += "sum Qty in Event with Product '1' / SIMPLE WAY ";
+                        return controller.sumQtyBySimple();
+
+                    case R.id.buttonSumQty1_2:
+                        tag += "sum Qty in Event with Product '1' / FASTER WAY ";
+                        return controller.sumQtyByFaster();
+                }
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Performance result) {
+            if (result != null) {
+                mBinding.result.setText(result.getDisplayResult(tag));
+            } else {
+                mBinding.result.setText("Error occurred.");
+            }
+
+            progressDialog.dismiss();
+        }
+    }
+
 }
