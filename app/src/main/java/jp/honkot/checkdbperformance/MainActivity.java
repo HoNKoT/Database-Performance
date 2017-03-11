@@ -10,12 +10,15 @@ import android.view.View.OnClickListener;
 
 import jp.honkot.checkdbperformance.databinding.ActivityMainBinding;
 import jp.honkot.checkdbperformance.orma.OrmaDao;
+import jp.honkot.checkdbperformance.pure.PureAndroidDao;
 
 public class MainActivity extends AppCompatActivity implements OnClickListener {
 
     ActivityMainBinding mBinding;
 
     OrmaDao ormaDao;
+
+    PureAndroidDao pureAndroidDao;
 
     ProgressDialog progressDialog;
 
@@ -31,6 +34,11 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     private void initialize() {
         ormaDao = new OrmaDao(getApplicationContext());
         ormaDao.initProduct();
+
+        pureAndroidDao = new PureAndroidDao(getApplicationContext());
+        pureAndroidDao.initProduct();
+
+        updateEventCount();
     }
 
     @Override
@@ -56,11 +64,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         @Override
         protected void onPreExecute() {
             if (mBinding.radioOrma.isChecked()) {
-                controller = new OrmaDao(getApplicationContext());
+                controller = ormaDao;
                 tag = "Orma ";
 
             } else if (mBinding.radioPureAndroid.isChecked()) {
-                //TODO
+                controller = pureAndroidDao;
+                tag = "Pure Android ";
 
             } else if (mBinding.radioRealm.isChecked()) {
                 //TODO
@@ -85,6 +94,14 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
                         tag += "insert 10000 bulk ";
                         return controller.insertBulk();
 
+                    case R.id.buttonUpdate:
+                        tag += "update related Product at random ";
+                        return controller.update();
+
+                    case R.id.buttonDelete:
+                        tag += "delete 10000 one by one ";
+                        return controller.delete();
+
                     case R.id.buttonSumQty1_1:
                         tag += "sum Qty in Event with Product '1' / SIMPLE WAY ";
                         return controller.sumQtyBySimple();
@@ -101,13 +118,25 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         @Override
         protected void onPostExecute(Performance result) {
             if (result != null) {
-                mBinding.result.setText(result.getDisplayResult(tag));
+                mBinding.result.setText(
+                        result.getDisplayResult(tag) + "\n" +
+                        mBinding.result.getText());
             } else {
-                mBinding.result.setText("Error occurred.");
+                mBinding.result.setText(
+                        "Error occurred." + "\n" +
+                        mBinding.result.getText());
             }
-
+            updateEventCount();
             progressDialog.dismiss();
         }
     }
 
+    private void updateEventCount() {
+        mBinding.radioPureAndroid.setText(
+                "Pure Android (" + pureAndroidDao.allEventCount() + " records)");
+
+        mBinding.radioOrma.setText(
+                "Orma (" + ormaDao.allEventCount() + " records)");
+
+    }
 }

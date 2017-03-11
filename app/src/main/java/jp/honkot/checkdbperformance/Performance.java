@@ -58,7 +58,7 @@ public class Performance {
         }
         sb.append("\n - total: ").append(getTotalScore()).append("ms");
         if (count > 1) {
-            sb.append(", ave: ").append(getAverageScore()).append("ms ");
+            sb.append(", ave: ").append(getAverageScore()).append("ms (").append(count).append(" records)");
         }
         return sb.toString();
     }

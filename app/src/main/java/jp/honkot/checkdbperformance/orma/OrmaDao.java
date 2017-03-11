@@ -12,10 +12,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import jp.honkot.checkdbperformance.DaoBase;
 import jp.honkot.checkdbperformance.IAction;
 import jp.honkot.checkdbperformance.Performance;
 
-public class OrmaDao implements IAction {
+public class OrmaDao extends DaoBase implements IAction {
 
     private static final String DATABASE_NAME = "orma";
     private static final int PRODUCT_NUM = 100;
@@ -36,6 +37,10 @@ public class OrmaDao implements IAction {
         }
     }
 
+    /**
+     * Create new Event, the quantity and related product id are decided at random.
+     * @return new Event
+     */
     private Event generateNewEvent() {
         int action = random.nextInt(ACTION_NUM);
         int productIndex = random.nextInt(PRODUCT_NUM);
@@ -50,6 +55,11 @@ public class OrmaDao implements IAction {
         return event;
     }
 
+    public int allEventCount() {
+        return orma.relationOfEvent().count();
+    }
+
+    @Override
     public void initProduct() {
         if (orma.relationOfProduct().selector().isEmpty()) {
             Random random = new Random();
@@ -110,6 +120,63 @@ public class OrmaDao implements IAction {
     }
 
     @Override
+    public Performance update() {
+        Performance performance = new Performance();
+
+        // faze 1. get all Event records (only id)
+        Cursor eventIdsCursor = orma.relationOfEvent()
+                .selector()
+                .executeWithColumns(Event_Schema.INSTANCE.id.getEscapedName());
+
+        while (eventIdsCursor.moveToNext()) {
+            // faze 2. generate new product Id
+            long newProductId = random.nextInt(PRODUCT_NUM);
+            Product product = orma.relationOfProduct()
+                    .selector().idEq(newProductId + 1).value();
+
+            // faze 3. update product id to it one by one
+            performance.measureStart();
+            orma.updateEvent()
+                    .idEq(eventIdsCursor.getLong(0))
+                    .product(SingleAssociation.just(product))
+                    .execute();
+            performance.measureFinish();
+        }
+        eventIdsCursor.close();
+
+        return performance;
+    }
+
+    @Override
+    public Performance delete() {
+        Performance performance = new Performance();
+
+        // faze 1. get 10000 Event records (only id)
+        Cursor eventIdsCursor = orma.relationOfEvent()
+                .selector()
+                .orderByIdAsc()
+                .executeWithColumns(Event_Schema.INSTANCE.id.getEscapedName());
+
+        // faze 2. delete one by one (10000 records only)
+        int count = 0;
+        while (eventIdsCursor.moveToNext()) {
+            performance.measureStart();
+            orma.deleteFromEvent()
+                    .idEq(eventIdsCursor.getLong(0))
+                    .execute();
+            performance.measureFinish();
+
+            count++;
+            if (count >= TEST_COUNT) {
+                break;
+            }
+        }
+        eventIdsCursor.close();
+
+        return performance;
+    }
+
+    @Override
     public Performance sumQtyBySimple() {
 
         Performance performance = new Performance();
@@ -122,6 +189,7 @@ public class OrmaDao implements IAction {
                 .toList();
 
         long sum = 0;
+        int eventCount = 0;
         for (Product product : products) {
             // faze 2. get related events
             List<Event> events = orma.relationOfEvent()
@@ -133,13 +201,14 @@ public class OrmaDao implements IAction {
             for (Event event : events) {
                 sum += event.getQuantity();
             }
+            eventCount += events.size();
         }
 
         performance.measureFinish();
         performance.setExpandInfo(
                 orma.relationOfEvent().count() + "records " +
                         ", product " + products.size() +
-                        ", sum " + sum);
+                        ", sum " + sum + " (related " + eventCount + " Events)");
 
         return performance;
     }
@@ -180,10 +249,14 @@ public class OrmaDao implements IAction {
                 .sumByQuantity();
 
         performance.measureFinish();
+        int eventCount = orma.relationOfEvent()
+                .selector()
+                .where(productsInClauses.toString(), new ArrayList<>()).count();
+
         performance.setExpandInfo(
                 orma.relationOfEvent().count() + "records " +
                         ", product " + productCountForDebug +
-                        ", sum " + sum);
+                        ", sum " + sum + " (related " + eventCount + " Events)");
 
         return performance;
     }

@@ -50,7 +50,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:onClick="@{handler::onClick}"
-                    android:text="delete all and initialize product"/>
+                    android:text="delete all Event"/>
 
                 <Button
                     android:id="@+id/buttonInsert10000_one"
@@ -60,24 +60,39 @@
                     android:text="insert 10,000 1 by 1"/>
                 <Button
                     android:id="@+id/buttonInsert10000_bulk"
+                    android:visibility="gone"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:onClick="@{handler::onClick}"
                     android:text="insert 10,000 bulk"/>
 
                 <Button
+                    android:id="@+id/buttonUpdate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:onClick="@{handler::onClick}"
+                    android:text="update related Product at random"/>
+
+                <Button
+                    android:id="@+id/buttonDelete"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:onClick="@{handler::onClick}"
+                    android:text="delete 10,000 1 by 1"/>
+
+                <Button
                     android:id="@+id/buttonSumQty1_1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:onClick="@{handler::onClick}"
-                    android:text="sum Qty in Event with the price higher than 500 / SIMPLE WAY"/>
+                    android:text="sum Qty with the price higher than 500 / SIMPLE WAY"/>
 
                 <Button
                     android:id="@+id/buttonSumQty1_2"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:onClick="@{handler::onClick}"
-                    android:text="sum Qty in Event with the price higher than 500 / FASTER WAY"/>
+                    android:text="sum Qty with the price higher than 500 / FASTER WAY"/>
             </LinearLayout>
         </ScrollView>
         
