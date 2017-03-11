@@ -5,6 +5,7 @@ import android.databinding.DataBindingUtil;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 
@@ -45,6 +46,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     public void onClick(View view) {
         progressDialog = new ProgressDialog(this);
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setCancelable(false);
         progressDialog.show();
 
         BgExecuter executer = new BgExecuter(view.getId());
@@ -56,6 +58,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         int viewId;
         IAction controller;
         String tag;
+        Performance bgPerformance = new Performance();
 
         BgExecuter(int viewId) {
             this.viewId = viewId;
@@ -63,6 +66,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
         @Override
         protected void onPreExecute() {
+            bgPerformance.measureStart();
             if (mBinding.radioOrma.isChecked()) {
                 controller = ormaDao;
                 tag = "Orma ";
@@ -117,10 +121,14 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
         @Override
         protected void onPostExecute(Performance result) {
+            bgPerformance.measureFinish();
             if (result != null) {
                 mBinding.result.setText(
                         result.getDisplayResult(tag) + "\n" +
                         mBinding.result.getText());
+                int percent = (int)(((double)result.getTotalScore() / (double)bgPerformance.getTotalScore()) * 100);
+                Log.d(getClass().getSimpleName(), "### " + result.getDisplayResult(tag)
+                        + "\n" + "Score: " + result.getTotalScore() + "ms (" + percent + "%) / " + bgPerformance.getTotalScore() + "ms");
             } else {
                 mBinding.result.setText(
                         "Error occurred." + "\n" +

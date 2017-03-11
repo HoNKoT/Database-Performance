@@ -241,9 +241,10 @@ public class PureAndroidDao extends DaoBase implements IAction {
 
         performance.measureFinish();
         Cursor countCorsorForDebug = mDB.rawQuery(
-                "SELECT " + Event.Const.COLUMN_ID + " FROM " + Event.Const.TABLE_NAME
+                "SELECT count(`" + Event.Const.COLUMN_ID + "`) FROM " + Event.Const.TABLE_NAME
                         + " WHERE " + productsInClauses.toString(), null);
-        int eventCount = countCorsorForDebug.getCount();
+        countCorsorForDebug.moveToFirst();
+        int eventCount = countCorsorForDebug.getInt(0);
         countCorsorForDebug.close();
         performance.setExpandInfo(
                 allEventCount() + "records " +
@@ -254,11 +255,11 @@ public class PureAndroidDao extends DaoBase implements IAction {
     }
 
     public int allEventCount() {
-        Cursor eventsCursor = mDB.query(
-                Event.Const.TABLE_NAME,
-                Event.COLUMNS,
-                null, null, null, null, null);
-        int count = eventsCursor.getCount();
+        Cursor eventsCursor = mDB.rawQuery(
+                "SELECT count(`" + Event.Const.COLUMN_ID + "`) FROM " + Event.Const.TABLE_NAME, null);
+
+        eventsCursor.moveToFirst();
+        int count = eventsCursor.getInt(0);
         eventsCursor.close();
 
         return count;
