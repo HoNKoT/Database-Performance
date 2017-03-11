@@ -34,7 +34,8 @@
                 android:id="@+id/radioRealm"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Realm"/>
+                android:enabled="false"
+                android:text="Realm (under construction...)"/>
         </RadioGroup>
 
         <ScrollView
